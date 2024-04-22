@@ -3,6 +3,10 @@ import { StatusBar } from 'expo-status-bar';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import SignupScreen from './src/screens/Auth/SignupScreen';
+import { Provider } from 'react-redux';
+import store from './src/redux/store/ConfigureStore';
+import LoginScreen from './src/screens/Auth/LoginScreen';
 
 // export default function App() {
 //   // render(){
@@ -42,15 +46,18 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
+    <Provider store={store}>
      <NavigationContainer>
-  <Stack.Navigator>
-    {/* <Stack.Screen name='Home' component={HomeScreen} /> */}
-    <Stack.Screen name="Home">
+  <Stack.Navigator screenOptions={{headerShown:false}}>
+    <Stack.Screen name='SignUp' component={SignupScreen} />
+    <Stack.Screen name='Login' component={LoginScreen} />
+    {/* <Stack.Screen name="Home">
           {(props) => <HomeScreen {...props} />} 
         </Stack.Screen>
-    <Stack.Screen name='Details' component={DetailsScreen} />
+    <Stack.Screen name='Details' component={DetailsScreen} /> */}
   </Stack.Navigator>
     </NavigationContainer>
+    </Provider>
   );
 
 
