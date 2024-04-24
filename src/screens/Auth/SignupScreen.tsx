@@ -1,11 +1,11 @@
 // import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Switch } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUserRequest } from '../../redux/actions/UserActions';
 import React, { useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
 
-const SignupScreen: React.FC = () => {
+const SignupScreen: React.FC = ({navigation}: any) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -16,14 +16,13 @@ const SignupScreen: React.FC = () => {
 	const [profilePic, setProfilePic] = useState('hgfuj');
   const [isBuyer, setIsBuyer] = useState(false);
 
-  // const loading = useSelector((state: any) => state.user.loading);
-  // const error = useSelector((state: any) => state.user.error);
+  const loading = useSelector((state: any) => state.users.loading);
+  const error = useSelector((state: any) => state.users.error);
 
   const dispatch = useDispatch();
-
+  const userData = useSelector((state: any) => state.userData);
+	
   const handleSignup = () => {
-		console.log("hii");
-		
     const userData = {
       firstName,
       lastName,
@@ -37,6 +36,20 @@ const SignupScreen: React.FC = () => {
     dispatch(registerUserRequest(userData));
   };
 
+	const isFormValid = () => {
+    return (
+      firstName.trim() !== '' ||
+      lastName.trim() !== '' ||
+      email.trim() !== '' ||
+      userName.trim() !== '' ||
+      password.trim() !== '' ||
+      confirmPassword.trim() !== '' ||
+      address.trim() !== ''
+    );
+  };
+	const navigateToLogin = () => {
+    navigation.navigate('Login'); 
+  };
 	// const pickImage = async () => {
   //   const result = await ImagePicker.launchImageLibraryAsync({
   //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -53,7 +66,7 @@ const SignupScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Sign Up</Text>
-      {/* {error && <Text style={styles.error}>"{error}"</Text>} */}
+      {error && <Text style={styles.error}>"{error}"</Text>}
 			{/* <TouchableOpacity style={styles.button} onPress={pickImage}> */}
         {/* <Text style={styles.buttonText}>Select Profile Picture</Text>
       </TouchableOpacity>
@@ -102,22 +115,29 @@ const SignupScreen: React.FC = () => {
         value={address}
         onChangeText={setAddress}
       />
-			 {/* <View style={styles.checkboxContainer}>
-        <CheckBox
+			   <View style={styles.checkboxContainer}>
+        <Switch
           value={isBuyer}
           onValueChange={setIsBuyer}
+					thumbColor="#714D90" 
+          trackColor={{ false: '#eae1f5', true: '#714D90' }}
         />
         <Text style={styles.checkboxLabel}>I am a Buyer</Text>
-      </View> */}
+      </View>
       <TouchableOpacity
         style={styles.button}
         onPress={handleSignup}
-        // disabled={loading}
+        disabled={loading || !isFormValid()}
+				
       >
-        <Text style={styles.buttonText}>
-					{/* {loading ? 'Signing Up...' : 'Sign Up'} */}
-					Sign up</Text>
+         {loading ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Text style={styles.buttonText}>{'Sign Up'}</Text>}
       </TouchableOpacity>
+			<View style={styles.loginTextContainer}>
+        <Text style={styles.loginText}>Already have an account?</Text>
+        <TouchableOpacity onPress={navigateToLogin}>
+          <Text style={styles.loginLink}>Login</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -143,7 +163,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
-    backgroundColor: 'blue',
+    backgroundColor: '#714D90',
     padding: 15,
     borderRadius: 5,
     alignItems: 'center',
@@ -164,6 +184,19 @@ const styles = StyleSheet.create({
   },
   checkboxLabel: {
     marginLeft: 8,
+  },
+	loginTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+  },
+  loginText: {
+    marginRight: 5,
+  },
+  loginLink: {
+    color: '#714D90',
+    textDecorationLine: 'underline',
   },
 });
 
