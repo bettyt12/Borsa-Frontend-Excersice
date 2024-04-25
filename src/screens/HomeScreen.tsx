@@ -22,6 +22,8 @@ const HomeScreen: React.FC = ({ navigation }: any) => {
     dispatch(fetchUsersRequest(page, limit));
   }, [dispatch, page, limit]);
 
+  const totalPages = Math.ceil(users.total / limit);
+
   const handlePrevPage = () => {
     if (page > 1) {
       setPage(page - 1);
@@ -32,35 +34,50 @@ const HomeScreen: React.FC = ({ navigation }: any) => {
     setPage(page + 1);
   };
 
+  // Disable previous button if on the first page
+  const isPrevDisabled = page === 1;
+  // Disable next button if on the last page
+  const isNextDisabled = page === totalPages;
+
   const handleEditProfile = () => {
     navigation.navigate('EditProfile');
   };
+  
   const userProfileCard = () => {
     return (
       <View style={styles.loggedInUserCard}>
-        {/* Display logged-in user information */}
         <View>
-          {/* <Text style={styles.loggedInUserHeaderText}>Logged-In User Information</Text> */}
-          <Text style={{color:'white', fontWeight: 'bold', fontSize: 16 }}>
+          <Text style={{  fontWeight: 'bold', fontSize: 16 }}>
             {userData.firstName} {userData.lastName}
           </Text>
-          <Text style={{color:'white'}}>{userData.email}</Text>
-          <Text style={{color:'white'}}>{userData.address}</Text>
+          <Text >{userData.email}</Text>
+          <Text >{userData.address}</Text>
+          <Text >{userData.isBuyer ? "Buyer": ""}</Text>
         </View>
-        {/* Add edit icon button */}
         <TouchableOpacity style={styles.editButton} onPress={handleEditProfile}>
           <Ionicons name="pencil" size={20} color="purple" />
         </TouchableOpacity>
       </View>
     );
   };
+  const isValidURL = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch (error) { 
+      return false;
+    }
+  };
 
   const renderUserCard = ({ item }: any) => (
     <View style={styles.userCard}>
       <Image
         style={styles.avatar}
-        source={{ uri: item.profilePic || '../../assets/Images/defaultPic.jpg' }}
-        defaultSource={require('../../assets/Images/defaultPic.jpg')}
+        source={
+          item.profilePic && isValidURL(item.profilePic)
+            ? { uri: item.profilePic } // Use profilePic if it's a non-empty and valid URL
+            : require('../../assets/Images/defaultPic.jpg') // Use default pic otherwise
+        }
       />
       <View style={styles.userInfo}>
         <Text>
@@ -71,7 +88,7 @@ const HomeScreen: React.FC = ({ navigation }: any) => {
       </View>
     </View>
   );
-  
+
   return (
     <View style={styles.container}>
       <View>{userProfileCard()}</View>
@@ -82,12 +99,28 @@ const HomeScreen: React.FC = ({ navigation }: any) => {
         contentContainerStyle={styles.list}
       />
       <View style={styles.pagination}>
-        <TouchableOpacity onPress={handlePrevPage} disabled={page === 1}>
-          <Text style={styles.paginationButton}>Prev</Text>
+        <TouchableOpacity onPress={handlePrevPage} disabled={isPrevDisabled}>
+          <Text
+            style={
+              isPrevDisabled
+                ? styles.disabledPaginationButton
+                : styles.paginationButton
+            }
+          >
+            Prev
+          </Text>
         </TouchableOpacity>
         <Text style={styles.paginationText}>Page {page}</Text>
-        <TouchableOpacity onPress={handleNextPage}>
-          <Text style={styles.paginationButton}>Next</Text>
+        <TouchableOpacity onPress={handleNextPage} disabled={isNextDisabled}>
+          <Text
+            style={
+              isNextDisabled
+                ? styles.disabledPaginationButton
+                : styles.paginationButton
+            }
+          >
+            Next
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -128,10 +161,18 @@ const styles = StyleSheet.create({
   paginationButton: {
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor:  '#714D90',
+    backgroundColor: '#714D90',
     color: 'white',
     borderRadius: 5,
     marginHorizontal: 5,
+  },
+  disabledPaginationButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+    marginHorizontal: 5,
+    backgroundColor: '#C4C4C4', // Lighter color for disabled state
+    color: '#888888', // Lighter text color for disabled state
   },
   paginationText: {
     marginHorizontal: 10,
@@ -141,14 +182,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 15,
-    backgroundColor: '#ccbae0',
+    backgroundColor: '#EEE5F9',
     borderRadius: 10,
     marginBottom: 10,
     marginTop: 20,
     paddingVertical: 20,
     borderBlockColor: '#000FE0',
     borderColor: '#000FE0',
-    color: 'white'
+    color: 'white',
   },
   userInfoContainer: {
     flex: 1,

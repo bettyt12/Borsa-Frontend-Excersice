@@ -15,14 +15,11 @@ function* registerUser(action: any): Generator {
 
     if (!response.ok) {
       const error: any = yield response.json();
-			console.log((response.message));
       throw new Error(error.message || 'Failed to register user');
     }
 
     const user = yield response.json();
     yield put(registerUserSuccess(user));
-		alert('User registered successfully');
-		
   } catch (error) {
     yield put(registerUserFailure(error.message));
   }
@@ -37,18 +34,18 @@ function* loginUser(action: any): Generator {
       },
       body: JSON.stringify(action.payload),
     });
-
+	
     if (!response.ok) {
-      const error = yield response.json();
-			console.log(response);
-      throw new Error(response.message || 'Failed to login user');
+      const error :any = yield response.json();
+		
+      throw new Error(error.message || 'Failed to login user');
     }
-		console.log(response, "Hii");
+
     const user = yield response.json();
     yield put(loginUserSuccess(user));
   } catch (error) {
     yield put(loginUserFailure(error.message));
-    console.log(error.message);
+    console.log(error.message ,"catch error");
   }
 }
 

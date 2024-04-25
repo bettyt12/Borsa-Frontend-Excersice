@@ -12,7 +12,8 @@ export enum ActionTypes {
   EDIT_PROFILE_SUCCESS = 'EDIT_PROFILE_SUCCESS',
   EDIT_PROFILE_FAILURE = 'EDIT_PROFILE_FAILURE',
 }
-
+import showMessage  from "react-native-toast-message"
+import Toast from "react-native-toast-message"
 export const registerUserRequest = (userData: any) => ({
   type: ActionTypes.REGISTER_USER_REQUEST,
   payload: userData,
