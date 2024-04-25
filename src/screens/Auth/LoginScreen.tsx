@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { loginUserRequest } from '../../redux/actions/UserActions';
+import Toast from 'react-native-toast-message';
 
 const LoginScreen: React.FC = ({navigation}: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
+const [loginAttempt, setLoginAttempt] = useState(false)
   const loading = useSelector((state: any) => state.users.loading);
   const error = useSelector((state: any) => state.users.error);
 
@@ -14,12 +15,18 @@ const LoginScreen: React.FC = ({navigation}: any) => {
   const userData = useSelector((state: any) => state.users.userData);
 
   useEffect(() => {
-    if (userData) {
+    if (userData && loginAttempt && !error && !loading) {
+    Toast.show({
+    type: "success",
+    text1: 'User Logged in Successfully!'
+  });
+    setLoginAttempt(false)
       navigation.navigate('Home'); 
     }
-  }, [userData, navigation]);
-  
+  }, [userData, navigation,error,loading, loginAttempt]);
+
   const handleLogin = () => {
+    setLoginAttempt(true)
     const userData = {
       email,
       password,
@@ -29,6 +36,10 @@ const LoginScreen: React.FC = ({navigation}: any) => {
 
 	const navigateToSignup = () => {
     navigation.navigate('SignUp'); 
+  };
+
+  const isFormValid = () => {
+    return email.trim() !== '' || password.trim() !== '';
   };
   return (
     <View style={styles.container}>
@@ -51,7 +62,7 @@ const LoginScreen: React.FC = ({navigation}: any) => {
       <TouchableOpacity
         style={styles.button}
         onPress={handleLogin}
-        disabled={loading}
+        disabled={!isFormValid}
       >
       {loading ? <ActivityIndicator size="small" color="#FFFFFF" /> : <Text style={styles.buttonText}>{'Login'}</Text>}
       </TouchableOpacity>

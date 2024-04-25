@@ -10,13 +10,17 @@ import LoginScreen from './src/screens/Auth/LoginScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import EditProfileScreen from './src/screens/EditProfileScreen';
 import SplashScreen from './src/screens/SplashScreen';
+import React from 'react';
+import  Toast  from 'react-native-toast-message';
 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
     <Provider store={store}>
+       
       <NavigationContainer>
+     
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="SignUp" component={SignupScreen} />
@@ -25,6 +29,7 @@ export default function App() {
           <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         </Stack.Navigator>
       </NavigationContainer>
+      <Toast topOffset={35} />
     </Provider>
   );
 }

@@ -2,8 +2,10 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator, Switch } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUserRequest } from '../../redux/actions/UserActions';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
+import Toast from 'react-native-toast-message';
+import * as Location from 'expo-location';
 
 const SignupScreen: React.FC = ({navigation}: any) => {
   const [firstName, setFirstName] = useState('');
@@ -13,8 +15,12 @@ const SignupScreen: React.FC = ({navigation}: any) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [address, setAddress] = useState('');
-	const [profilePic, setProfilePic] = useState('hgfuj');
+	const [profilePic, setProfilePic] = useState('https://via.placeholder.com/150');
   const [isBuyer, setIsBuyer] = useState(false);
+  const [loadingLocation, setLoadingLocation] = useState(false);
+  const [errorLocation, setErrorLocation] = useState('');
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
 
   const loading = useSelector((state: any) => state.users.loading);
   const error = useSelector((state: any) => state.users.error);
@@ -50,6 +56,51 @@ const SignupScreen: React.FC = ({navigation}: any) => {
 	const navigateToLogin = () => {
     navigation.navigate('Login'); 
   };
+
+  useEffect(() => {
+    if (userData) {
+    Toast.show({
+    type: "success",
+    text1: 'User Registered Successfully!',
+    visibilityTime: 2000,
+    autoHide: true,
+    topOffset: 50,
+});
+      navigation.navigate('Login'); 
+    }
+  }, [userData, navigation]);
+
+  const getCurrentLocation = async () => {
+    setLoadingLocation(true);
+    try {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorLocation('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      let { coords } = location;
+      let address = await Location.reverseGeocodeAsync({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+      });
+      if (address.length > 0) {
+        setCity(address[0].city || '');
+        setCountry(address[0].country || '');
+        setAddress(`${address[0].city || ''}, ${address[0].country || ''}`);
+      }
+    } catch (error) {
+      console.error('Error fetching location: ', error);
+      setErrorLocation('Error fetching location. Please try again.');
+    } finally {
+      setLoadingLocation(false);
+    }
+  };
+
+  useEffect(() => {
+    getCurrentLocation();
+  }, []);
 	// const pickImage = async () => {
   //   const result = await ImagePicker.launchImageLibraryAsync({
   //     mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -109,6 +160,9 @@ const SignupScreen: React.FC = ({navigation}: any) => {
         value={confirmPassword}
         onChangeText={setConfirmPassword}
       />
+       {confirmPassword !== password && (
+        <Text style={styles.error}>Passwords do not match</Text>
+      )}
       <TextInput
         style={styles.input}
         placeholder="Address"
